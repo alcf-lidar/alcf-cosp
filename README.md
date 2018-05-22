@@ -1,4 +1,4 @@
-# COSP (Surface Lidar Fork)
+# COSPv1 (Surface Lidar Fork)
 
 COSP is the CFMIP Observation Simulator Package.
 
