@@ -2,7 +2,7 @@
 
 COSP is the CFMIP Observation Simulator Package.
 
-This is an a fork of [CFMIP/COSPv1](https://github.com/CFMIP/COSPv1) with
+This is a fork of [CFMIP/COSPv1](https://github.com/CFMIP/COSPv1) with
 experimental support for surface lidar. It includes support for two
 wavelengths: 532 nm and 1064 nm (Rayleigh and Mie scattering).
 
