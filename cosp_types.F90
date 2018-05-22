@@ -277,7 +277,10 @@ MODULE MOD_COSP_TYPES
     ! Lidar
     integer :: lidar_ice_type !ice particle shape hypothesis in lidar calculations 
                               !(ice_type=0 for spheres, ice_type=1 for non spherical particles)
-    
+
+    integer :: lidar_wavelength ! Lidar wavelength [nm]
+    integer :: surface_lidar ! surface=1, spaceborne=0
+
     ! Radar
     logical ::  use_precipitation_fluxes  ! True if precipitation fluxes are input to the algorithm 
     logical ::  use_reff          ! True if Reff is to be used by radar (memory not allocated
@@ -914,7 +917,7 @@ CONTAINS
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   SUBROUTINE CONSTRUCT_COSP_GRIDBOX(time,time_bnds,radar_freq,surface_radar,use_mie_tables,use_gas_abs,do_ray,melt_lay,k2, &
                                    Npoints,Nlevels,Ncolumns,Nhydro,Nprmts_max_hydro,Naero,Nprmts_max_aero,Npoints_it, &
-                                   lidar_ice_type,isccp_top_height,isccp_top_height_direction,isccp_overlap,isccp_emsfc_lw, &
+                                   lidar_ice_type,lidar_wavelength,surface_lidar,isccp_top_height,isccp_top_height_direction,isccp_overlap,isccp_emsfc_lw, &
                                    use_precipitation_fluxes,use_reff, &
                                    ! RTTOV inputs
                                    Plat,Sat,Inst,Nchan,ZenAng,Ichan,SurfEm,co2,ch4,n2o,co,&
@@ -938,6 +941,8 @@ CONTAINS
     integer,intent(in) :: Nprmts_max_aero    ! Max number of parameters for aerosol size distributions
     integer,intent(in) :: Npoints_it   ! Number of gridpoints processed in one iteration
     integer,intent(in) :: lidar_ice_type ! Ice particle shape in lidar calculations (0=ice-spheres ; 1=ice-non-spherical)
+    integer,intent(in) :: lidar_wavelength ! Lidar wavelength [nm]
+    integer,intent(in) :: surface_lidar ! surface=1,spaceborne=0
     integer,intent(in) :: isccp_top_height
     integer,intent(in) :: isccp_top_height_direction
     integer,intent(in) :: isccp_overlap
@@ -982,6 +987,8 @@ CONTAINS
     y%Nprmts_max_aero  = Nprmts_max_aero
     y%Npoints_it       = Npoints_it
     y%lidar_ice_type   = lidar_ice_type
+    y%lidar_wavelength = lidar_wavelength
+    y%surface_lidar    = surface_lidar
     y%isccp_top_height = isccp_top_height
     y%isccp_top_height_direction = isccp_top_height_direction
     y%isccp_overlap    = isccp_overlap

@@ -29,7 +29,8 @@
                 , pres, presf, temp &
                 , q_lsliq, q_lsice, q_cvliq, q_cvice &
                 , ls_radliq, ls_radice, cv_radliq, cv_radice &
-                , ice_type, pmol, pnorm, pnorm_perp_tot,tautot, refl )
+                , ice_type, lidar_wavelength, surface_lidar &
+                , pmol, pnorm, pnorm_perp_tot,tautot, refl )
 !
 !---------------------------------------------------------------------------------
 ! Purpose: To compute lidar signal from model-simulated profiles of cloud water
@@ -127,8 +128,8 @@
       LOGICAL ok_parasol
       PARAMETER (ok_parasol=.true.)  ! set to .true. if you want to activate parasol reflectances
 
-      INTEGER i, k
-      
+      INTEGER i, j, k, n
+
       INTEGER INDX_LSLIQ,INDX_LSICE,INDX_CVLIQ,INDX_CVICE
       PARAMETER (INDX_LSLIQ=1,INDX_LSICE=2,INDX_CVLIQ=3,INDX_CVICE=4)
 ! inputs:
@@ -141,6 +142,7 @@
       REAL q_cvliq(npoints,nlev), q_cvice(npoints,nlev)
       REAL ls_radliq(npoints,nlev), ls_radice(npoints,nlev)
       REAL cv_radliq(npoints,nlev), cv_radice(npoints,nlev)
+      INTEGER lidar_wavelength, surface_lidar
 
 ! outputs (for each subcolumn):
 
@@ -151,8 +153,8 @@
 
 ! actsim variables:
 
-      REAL km, rdiffm, Qscat, Cmol
-      PARAMETER (Cmol = 6.2446e-32) ! depends on wavelength
+      REAL km, rdiffm, Qscat, Cmol, Cmol_532
+      PARAMETER (Cmol_532 = 6.2446e-32) ! Rayleigh scattering cross section (532 nm)
       PARAMETER (km = 1.38e-23)     ! Boltzmann constant (J/K)
 
       PARAMETER (rdiffm = 0.7)      ! multiple scattering correction parameter
@@ -161,6 +163,10 @@
       REAL rholiq, rhoice
       PARAMETER (rholiq=1.0e+03)     ! liquid water (kg/m3)
       PARAMETER (rhoice=0.5e+03)     ! ice (kg/m3)
+
+      REAL mie_backscatter(500) ! Mie backscatter as a function of effective radius ([1, 100] um in 500 steps)
+#include "mie_backscatter_532.F90"
+#include "mie_backscatter_1064.F90"
 
       REAL pi, rhopart(npart)
       REAL polpart(npart,5)  ! polynomial coefficients derived for spherical and non spherical
@@ -199,9 +205,32 @@
       REAL pnorm_ice(npoints,nlev)    ! lidar backscattered signal power for ice
       REAL pnorm_perp_ice(npoints,nlev) ! perpendicular lidar backscattered signal power for ice
       REAL pnorm_perp_liq(npoints,nlev) ! perpendicular lidar backscattered signal power for liq
+      REAL presf_new(npoints,nlev+1)
+      REAL presf_old(npoints,nlev+1)
 
 ! Output variable
       REAL pnorm_perp_tot (npoints,nlev) ! perpendicular lidar backscattered signal power
+
+! Vertical field reversal if surface lidar
+if ( surface_lidar .eq. 1 ) then
+  presf_old(:,:) = presf(:,:)
+  presf_new(:,nlev+1) = 0
+  do k = nlev, 1, -1
+    presf_new(:,k) = presf_new(:,k+1) + presf(:,nlev-k+1) - presf(:,nlev-k+2)
+  end do
+  presf(:,:) = presf_new(:,:)
+
+  pres(:,:) = pres(:,nlev:1:-1)
+  temp(:,:) = temp(:,nlev:1:-1)
+  q_lsliq(:,:) = q_lsliq(:,nlev:1:-1)
+  q_lsice(:,:) = q_lsice(:,nlev:1:-1)
+  q_cvliq(:,:) = q_cvliq(:,nlev:1:-1)
+  q_cvice(:,:) = q_cvice(:,nlev:1:-1)
+  ls_radliq(:,:) = ls_radliq(:,nlev:1:-1)
+  ls_radice(:,:) = ls_radice(:,nlev:1:-1)
+  cv_radliq(:,:) = cv_radliq(:,nlev:1:-1)
+  cv_radice(:,:) = cv_radice(:,nlev:1:-1)
+end if
 
 !------------------------------------------------------------
 !---- 0. Initialisation :
@@ -324,6 +353,7 @@ pnorm_perp_tot(:,:)=0
 !---- 2. Molecular alpha and beta:
 !------------------------------------------------------------
 
+      Cmol = Cmol_532*EXP(4*(LOG(532.0) - LOG(1.0*lidar_wavelength)))
       beta_mol = pres/km/temp * Cmol
       alpha_mol = 8.0*pi/3.0 * beta_mol
 
@@ -332,19 +362,41 @@ pnorm_perp_tot(:,:)=0
 !------------------------------------------------------------
 
 ! polynomes kp_lidar derived from Mie theory:
+      !do i = 1, npart
+      ! where ( rad_part(:,:,i).gt.0.0)
+      !   kp_part(:,:,i) = &
+      !      polpart(i,1)*(rad_part(:,:,i)*1e6)**4 &
+      !    + polpart(i,2)*(rad_part(:,:,i)*1e6)**3 &
+      !    + polpart(i,3)*(rad_part(:,:,i)*1e6)**2 &
+      !    + polpart(i,4)*(rad_part(:,:,i)*1e6) &
+      !    + polpart(i,5)
+      !  elsewhere
+      !   kp_part(:,:,i) = 0.
+      !  endwhere
+      !  kp_part(:,:,i) = kp_part(:,:,i)*EXP(2*(LOG(1.0*lidar_wavelength) - LOG(532.0)))
+      !enddo
+
+      if (lidar_wavelength == 532) then
+        mie_backscatter = mie_backscatter_532
+      elseif (lidar_wavelength == 1064) then
+        mie_backscatter = mie_backscatter_1064
+      else
+        stop 'Unsupported lidar wavelength'
+      end if
+
       do i = 1, npart
-       where ( rad_part(:,:,i).gt.0.0)
-         kp_part(:,:,i) = &
-            polpart(i,1)*(rad_part(:,:,i)*1e6)**4 &
-          + polpart(i,2)*(rad_part(:,:,i)*1e6)**3 &
-          + polpart(i,3)*(rad_part(:,:,i)*1e6)**2 &
-          + polpart(i,4)*(rad_part(:,:,i)*1e6) &
-          + polpart(i,5)
-        elsewhere
-         kp_part(:,:,i) = 0.
-        endwhere
+       do j = 1, npoints
+        do k = 1, nlev
+         if (rad_part(j,k,i) > 0.0) then
+          n = (rad_part(j,k,i)*1e6 - 1)/(100 - 1)*500
+          kp_part(j,k,i) = mie_backscatter(n)
+         else
+          kp_part(j,k,i) = 0
+         end if
+        enddo
+       enddo
       enddo
-      
+
 ! mixing ratio particules in each subcolumn:
           qpart(:,:,INDX_LSLIQ) = q_lsliq(:,:) ! oct08
           qpart(:,:,INDX_LSICE) = q_lsice(:,:) ! oct08
@@ -571,6 +623,26 @@ pnorm_perp_tot(:,:)=0
             ENDWHERE
 
       END DO
+
+! Vertical field reversal if surface lidar
+if ( surface_lidar .eq. 1 ) then
+  pmol(:,:) = pmol(:,nlev:1:-1)
+  pnorm(:,:) = pnorm(:,nlev:1:-1)
+  pnorm_perp_tot(:,:) = pnorm_perp_tot(:,nlev:1:-1)
+  tautot(:,:) = tautot(:,nlev:1:-1)
+
+  presf(:,:) = presf_old(:,:)
+  pres(:,:) = pres(:,nlev:1:-1)
+  temp(:,:) = temp(:,nlev:1:-1)
+  q_lsliq(:,:) = q_lsliq(:,nlev:1:-1)
+  q_lsice(:,:) = q_lsice(:,nlev:1:-1)
+  q_cvliq(:,:) = q_cvliq(:,nlev:1:-1)
+  q_cvice(:,:) = q_cvice(:,nlev:1:-1)
+  ls_radliq(:,:) = ls_radliq(:,nlev:1:-1)
+  ls_radice(:,:) = ls_radice(:,nlev:1:-1)
+  cv_radliq(:,:) = cv_radliq(:,nlev:1:-1)
+  cv_radice(:,:) = cv_radice(:,nlev:1:-1)
+endif
 
 !-------- End computation Lidar --------------------------
 

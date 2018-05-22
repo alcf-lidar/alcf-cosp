@@ -203,7 +203,7 @@ SUBROUTINE COSP(overlap,Ncolumns,cfg,vgrid,gbx,sgx,sgradar,sglidar,isccp,misr,mo
                 call construct_cosp_gridbox(gbx%time,gbx%time_bnds,gbx%radar_freq,gbx%surface_radar,gbx%use_mie_tables, &
                                             gbx%use_gas_abs,gbx%do_ray,gbx%melt_lay,gbx%k2,Ni,Nlevels, &
                                             Ncolumns,N_HYDRO,gbx%Nprmts_max_hydro, &
-                                            gbx%Naero,gbx%Nprmts_max_aero,Ni,gbx%lidar_ice_type,gbx%isccp_top_height, &
+                                            gbx%Naero,gbx%Nprmts_max_aero,Ni,gbx%lidar_ice_type,gbx%lidar_wavelength,gbx%surface_lidar,gbx%isccp_top_height, &
                                             gbx%isccp_top_height_direction,gbx%isccp_overlap,gbx%isccp_emsfc_lw, &
                                             gbx%use_precipitation_fluxes,gbx%use_reff, &
                                             gbx%plat,gbx%sat,gbx%inst,gbx%nchan,gbx%ZenAng, &
@@ -240,7 +240,7 @@ SUBROUTINE COSP(overlap,Ncolumns,cfg,vgrid,gbx,sgx,sgradar,sglidar,isccp,misr,mo
                 call construct_cosp_gridbox(gbx%time,gbx%time_bnds,gbx%radar_freq,gbx%surface_radar,gbx%use_mie_tables, &
                                             gbx%use_gas_abs,gbx%do_ray,gbx%melt_lay,gbx%k2,Ni,Nlevels, &
                                             Ncolumns,N_HYDRO,gbx%Nprmts_max_hydro, &
-                                            gbx%Naero,gbx%Nprmts_max_aero,Ni,gbx%lidar_ice_type,gbx%isccp_top_height, &
+                                            gbx%Naero,gbx%Nprmts_max_aero,Ni,gbx%lidar_ice_type,gbx%lidar_wavelength,gbx%surface_lidar,gbx%isccp_top_height, &
                                             gbx%isccp_top_height_direction,gbx%isccp_overlap,gbx%isccp_emsfc_lw, &
                                             gbx%use_precipitation_fluxes,gbx%use_reff, &
                                             gbx%plat,gbx%sat,gbx%inst,gbx%nchan,gbx%ZenAng, &

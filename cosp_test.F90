@@ -87,7 +87,7 @@ PROGRAM COSPTEST
   integer,dimension(RTTOV_MAX_CHANNELS) :: Channels
   real,dimension(RTTOV_MAX_CHANNELS) :: Surfem
   integer :: surface_radar,use_mie_tables,use_gas_abs,do_ray,melt_lay
-  integer :: Nprmts_max_hydro,Naero,Nprmts_max_aero,lidar_ice_type
+  integer :: Nprmts_max_hydro,Naero,Nprmts_max_aero,lidar_ice_type,lidar_wavelength,surface_lidar
   integer :: platform,satellite,Instrument,Nchannels,N1
   logical :: use_vgrid,csat_vgrid,use_precipitation_fluxes,use_reff
   double precision :: time,time_bnds(2),time_step
@@ -96,7 +96,7 @@ PROGRAM COSPTEST
               npoints,npoints_it,ncolumns,nlevels,use_vgrid,nlr,csat_vgrid,dinput,finput, &
               radar_freq,surface_radar,use_mie_tables, &
               use_gas_abs,do_ray,melt_lay,k2,Nprmts_max_hydro,Naero,Nprmts_max_aero, &
-              lidar_ice_type,use_precipitation_fluxes,use_reff, &
+              lidar_ice_type,lidar_wavelength,surface_lidar,use_precipitation_fluxes,use_reff, &
               platform,satellite,Instrument,Nchannels, &
               Channels,Surfem,ZenAng,co2,ch4,n2o,co
 
@@ -171,7 +171,7 @@ PROGRAM COSPTEST
         call construct_cosp_gridbox(time,time_bnds,radar_freq,surface_radar,use_mie_tables,use_gas_abs, &
                                     do_ray,melt_lay,k2, &
                                     Npoints,Nlevels,Ncolumns,N_HYDRO,Nprmts_max_hydro,Naero,Nprmts_max_aero,Npoints_it, &
-                                    lidar_ice_type,isccp_topheight,isccp_topheight_direction,overlap,emsfc_lw, &
+                                    lidar_ice_type,lidar_wavelength,surface_lidar,isccp_topheight,isccp_topheight_direction,overlap,emsfc_lw, &
                                     use_precipitation_fluxes,use_reff, &
                                     Platform,Satellite,Instrument,Nchannels,ZenAng, &
                                     channels(1:Nchannels),surfem(1:Nchannels),co2,ch4,n2o,co,gbx)
