@@ -166,6 +166,7 @@
 
       REAL mie_backscatter(500) ! Mie backscatter as a function of effective radius ([1, 100] um in 500 steps)
 #include "mie_backscatter_532.F90"
+#include "mie_backscatter_910.F90"
 #include "mie_backscatter_1064.F90"
 
       REAL pi, rhopart(npart)
@@ -378,6 +379,8 @@ pnorm_perp_tot(:,:)=0
 
       if (lidar_wavelength == 532) then
         mie_backscatter = mie_backscatter_532
+      elseif (lidar_wavelength == 910) then
+        mie_backscatter = mie_backscatter_910
       elseif (lidar_wavelength == 1064) then
         mie_backscatter = mie_backscatter_1064
       else
