@@ -164,7 +164,7 @@
       PARAMETER (rholiq=1.0e+03)     ! liquid water (kg/m3)
       PARAMETER (rhoice=0.5e+03)     ! ice (kg/m3)
 
-      REAL mie_backscatter(500) ! Mie backscatter as a function of effective radius ([1, 100] um in 500 steps)
+      REAL mie_backscatter(500) ! Mie backscatter as a function of effective radius ([5, 50] um in 500 steps)
 #include "mie_backscatter_532.F90"
 #include "mie_backscatter_910.F90"
 #include "mie_backscatter_1064.F90"
@@ -354,7 +354,7 @@ pnorm_perp_tot(:,:)=0
 !---- 2. Molecular alpha and beta:
 !------------------------------------------------------------
 
-      Cmol = Cmol_532*EXP(4*(LOG(532.0) - LOG(1.0*lidar_wavelength)))
+      Cmol = Cmol_532*EXP(4.09*(LOG(532.0) - LOG(1.0*lidar_wavelength)))
       beta_mol = pres/km/temp * Cmol
       alpha_mol = 8.0*pi/3.0 * beta_mol
 
@@ -391,7 +391,7 @@ pnorm_perp_tot(:,:)=0
        do j = 1, npoints
         do k = 1, nlev
          if (rad_part(j,k,i) > 0.0) then
-          n = (rad_part(j,k,i)*1e6 - 1)/(100 - 1)*500
+          n = (rad_part(j,k,i)*1e6 - 5)/(50 - 1)*500
           kp_part(j,k,i) = mie_backscatter(n)
          else
           kp_part(j,k,i) = 0
