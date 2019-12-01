@@ -444,9 +444,13 @@ pnorm_perp_tot(:,:)=0
       ENDDO
 
 ! molecular signal:
-!      Upper layer 
-       pmol(:,nlev) = beta_mol(:,nlev) / (2.*tau_mol(:,nlev)) &
-            & * (1.-exp(-2.0*tau_mol(:,nlev)))
+!      Upper layer
+	   WHERE (tau_mol(:,nlev).GT.0.)
+         pmol(:,nlev) = beta_mol(:,nlev) / (2.*tau_mol(:,nlev)) &
+              & * (1.-exp(-2.0*tau_mol(:,nlev)))
+       ELSEWHERE
+	     pmol(:,nlev) = 0.
+       END WHERE
 !      Other layers
        DO k= nlev-1, 1, -1
         tau_mol_lay(:) = tau_mol(:,k)-tau_mol(:,k+1) ! opt. thick. of layer k
@@ -473,9 +477,13 @@ pnorm_perp_tot(:,:)=0
            tautot(:,:) = tautot(:,:)  + tau_part(:,:,i)
       ENDDO ! i
 !
-!     Upper layer 
-      pnorm(:,nlev) = betatot(:,nlev) / (2.*tautot(:,nlev)) &
-            & * (1.-exp(-2.0*tautot(:,nlev)))
+!     Upper layer
+      WHERE (tautot(:,nlev).GT.0.)
+        pnorm(:,nlev) = betatot(:,nlev) / (2.*tautot(:,nlev)) &
+              & * (1.-exp(-2.0*tautot(:,nlev)))
+      ELSEWHERE
+        pnorm(:,nlev) = 0.
+      END WHERE
 
 !     Other layers
       DO k= nlev-1, 1, -1
@@ -513,8 +521,12 @@ pnorm_perp_tot(:,:)=0
 ! Computation of the ice and liquid lidar backscattered signal (ATBice and ATBliq)
 !     Ice only
 !     Upper layer
-      pnorm_ice(:,nlev) = betatot_ice(:,nlev) / (2.*tautot_ice(:,nlev)) &
-            & * (1.-exp(-2.0*tautot_ice(:,nlev)))
+      WHERE (tautot_ice(:,nlev).GT.0.)
+        pnorm_ice(:,nlev) = betatot_ice(:,nlev) / (2.*tautot_ice(:,nlev)) &
+              & * (1.-exp(-2.0*tautot_ice(:,nlev)))
+      ELSEWHERE
+        pnorm_ice(:,nlev) = 0.
+      END WHERE
 
       DO k= nlev-1, 1, -1
           tautot_lay_ice(:) = tautot_ice(:,k)-tautot_ice(:,k+1) 
@@ -528,9 +540,12 @@ pnorm_perp_tot(:,:)=0
 
 !     Liquid only
 !     Upper layer
-      pnorm_liq(:,nlev) = betatot_liq(:,nlev) / (2.*tautot_liq(:,nlev)) &
-            & * (1.-exp(-2.0*tautot_liq(:,nlev)))
-
+      WHERE (tautot_liq(:,nlev).GT.0.)
+        pnorm_liq(:,nlev) = betatot_liq(:,nlev) / (2.*tautot_liq(:,nlev)) &
+              & * (1.-exp(-2.0*tautot_liq(:,nlev)))
+      ELSEWHERE
+	    pnorm_liq(:,nlev) = 0.
+	  END WHERE
       DO k= nlev-1, 1, -1
           tautot_lay_liq(:) = tautot_liq(:,k)-tautot_liq(:,k+1) 
         WHERE (tautot_lay_liq(:).GT.0.)
@@ -554,9 +569,13 @@ pnorm_perp_tot(:,:)=0
 
 ! Computation of beta_perp_ice/liq using the lidar equation
 !     Ice only
-!     Upper layer 
-      beta_perp_ice(:,nlev) = pnorm_perp_ice(:,nlev) * (2.*tautot_ice(:,nlev)) &
-            & / (1.-exp(-2.0*tautot_ice(:,nlev)))
+!     Upper layer
+	  WHERE (tautot_ice(:,nlev).GT.0.)
+        beta_perp_ice(:,nlev) = pnorm_perp_ice(:,nlev) * (2.*tautot_ice(:,nlev)) &
+              & / (1.-exp(-2.0*tautot_ice(:,nlev)))
+      ELSEWHERE
+        beta_perp_ice(:,nlev) = 0.
+      END WHERE
 
       DO k= nlev-1, 1, -1
         tautot_lay_ice(:) = tautot_ice(:,k)-tautot_ice(:,k+1)
@@ -570,9 +589,13 @@ pnorm_perp_tot(:,:)=0
       ENDDO
 
 !     Liquid only
-!     Upper layer 
-      beta_perp_liq(:,nlev) = pnorm_perp_liq(:,nlev) * (2.*tautot_liq(:,nlev)) &
-            & / (1.-exp(-2.0*tautot_liq(:,nlev)))
+!     Upper layer
+      WHERE (tautot_liq(:,nlev).GT.0.)
+        beta_perp_liq(:,nlev) = pnorm_perp_liq(:,nlev) * (2.*tautot_liq(:,nlev)) &
+              & / (1.-exp(-2.0*tautot_liq(:,nlev)))
+      ELSEWHERE
+        beta_perp_liq(:,nlev) = 0.
+      END WHERE
 
       DO k= nlev-1, 1, -1
           tautot_lay_liq(:) = tautot_liq(:,k)-tautot_liq(:,k+1) 
@@ -593,7 +616,7 @@ pnorm_perp_tot(:,:)=0
 
 ! Computation of the total perpendicular lidar signal (ATBperp for liq+ice)
 !     Upper layer 
-    WHERE(tautot(:,nlev).GT.0)
+    WHERE(tautot(:,nlev).GT.0.)
           pnorm_perp_tot(:,nlev) = &
               (beta_perp_ice(:,nlev)+beta_perp_liq(:,nlev)-(beta_mol(:,nlev)/(1+1/0.0284))) / (2.*tautot(:,nlev)) &
               & * (1.-exp(-2.0*tautot(:,nlev)))
