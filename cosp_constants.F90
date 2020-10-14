@@ -97,7 +97,7 @@ MODULE MOD_COSP_CONSTANTS
     integer,parameter :: LIDAR_NCAT    =   4
     integer,parameter :: PARASOL_NREFL =   5 ! parasol
     real,parameter,dimension(PARASOL_NREFL) :: PARASOL_SZA = (/0.0, 20.0, 40.0, 60.0, 80.0/)
-    real,parameter    :: DEFAULT_LIDAR_REFF = 30.0e-6 ! Default lidar effective radius
+    real,parameter    :: DEFAULT_LIDAR_REFF = 10.0e-6 ! Default lidar effective radius
 
     integer,parameter :: LIDAR_NTEMP = 40
     real,parameter,dimension(LIDAR_NTEMP) :: LIDAR_PHASE_TEMP=(/-91.5,-88.5,-85.5,-82.5,-79.5,-76.5,-73.5,-70.5,-67.5,-64.5, &
