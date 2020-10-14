@@ -74,7 +74,7 @@ SUBROUTINE COSP_LIDAR(gbx,sgx,sghydro,y)
                  , gbx%Reff(:,:,I_LSCLIQ), gbx%Reff(:,:,I_LSCICE) &
                  , gbx%Reff(:,:,I_CVCLIQ), gbx%Reff(:,:,I_CVCICE) &
                  , gbx%lidar_ice_type, gbx%lidar_wavelength, gbx%surface_lidar, y%beta_mol, beta_tot &
-                 , betaperp_tot, tau_tot, refle )
+                 , betaperp_tot, tau_tot, refle, .true. )
 
       y%betaperp_tot(:,i,:) = betaperp_tot(:,:)
       y%beta_tot(:,i,:) = beta_tot(:,:)
