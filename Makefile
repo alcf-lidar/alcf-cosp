@@ -2,26 +2,16 @@
 ########################################################################
 #              Adapt these variables to your environment
 ########################################################################
-F90      = ifort
+F90      = gfortran
 #F90FLAGS = -C -check -fpp
 #F90FLAGS = -check bounds
 #F90FLAGS = -pg
-F90FLAGS = -O2
-NCDF_INC = /data/cr2/hadac/software/cosp/include
-NCDF_LIB = /data/cr2/hadac/software/cosp/lib
+F90FLAGS = -O2 -fPIC -ffree-line-length-512 -I/usr/include -I/usr/local/include -I/opt/local/include -I/usr/lib64/gfortran/modules -L/usr/lib -L/usr/include/lib -L/opt/local/lib
+NCDF_INC = /usr/include
+NCDF_LIB = /usr/lib
 
-CMOR_INC = /data/cr2/hadac/software/cmor/include
-CMOR_LIB = /data/cr2/hadac/software/cmor/lib
-
-INC = /data/cr2/hadac/software/include
-LIB = /data/cr2/hadac/software/lib
-
-UDUNITS_LIB = /data/cr2/hadac/software/cosp/lib
-UDUNITS_INC = /data/cr2/hadac/software/cosp/include
-
-UUID_LIB = /data/cr2/hadac/software/cosp/lib
-UUID_INC = /data/cr2/hadac/software/cosp/include
-
+INC = /usr/include
+LIB = /usr/lib
 
 # Non-optional simulators. You should not need to change this
 RS_PATH = quickbeam
@@ -30,16 +20,10 @@ LLNL_PATH = llnl
 ISCCP_PATH = icarus-scops-4.1-bsd
 MISR_PATH = MISR_simulator
 MODIS_PATH = MODIS_simulator
-# RTTOV variables. You may need to change this
-RTTOV_PATH     = /data/cr2/hadac/software/rttov
-RTTOV_LIB_PATH = $(RTTOV_PATH)/rttov93.$(F90)/lib 
-RTTOV_INC_PATH = $(RTTOV_PATH)/rttov93.$(F90)/include 
-RTTOV_MOD_PATH = $(RTTOV_PATH)/rttov93.$(F90)/mod
 ########################################################################
 #              End of modifications
-######################################################################## 
+########################################################################
 
-PROG =  cosp_test
 OBJS =  cosp_radar.o cosp_types.o cosp_constants.o cosp_simulator.o \
         cosp_utils.o scops.o prec_scops.o cosp.o cosp_stats.o \
         pf_to_mr.o \
@@ -53,38 +37,20 @@ OBJS =  cosp_radar.o cosp_types.o cosp_constants.o cosp_simulator.o \
         cosp_modis_simulator.o modis_simulator.o \
         cosp_rttov_simulator.o
 
-all: $(PROG)
+.PHONY: all
 
+all: $(OBJS)
 
-$(PROG): $(OBJS)
-	$(F90) $(F90FLAGS) $(PROG).F90 $(OBJS) \
-	-L${CMOR_LIB} -L. -lcmor -I$(CMOR_INC) \
-	-I$(NCDF_INC) -L${NCDF_LIB} -lnetcdff \
-	-L${UDUNITS_LIB} -Wl,-rpath=${UDUNITS_LIB} -ludunits2 -lexpat -I${UDUNITS_INC} \
-	-L${UUID_LIB} -Wl,-rpath=${UUID_LIB} -luuid -I$(UUID_INC) \
-	-o $(PROG)
-
-rttov: $(OBJS) cosp_rttov.o
-	$(F90) $(F90FLAGS) $(PROG).F90 $(OBJS) cosp_rttov.o \
-	-I$(NCDF_INC) -L${NCDF_LIB} -lnetcdff -lnetcdf  \
-	-I$(INC) -L${LIB} -lsz \
-	-I$(CMOR_INC) -L${CMOR_LIB} -lcmor \
-	-I$(UUID_INC) -L${UUID_LIB} -luuid \
-	-L${UDUNITS_LIB} -ludunits2 -lexpat \
-	-L${RTTOV_LIB_PATH} -lrttov9.1 \
-	-o $(PROG)
-        
 %.o: %.f90
-	@echo $(F90) $(F90FLAGS) -c -I$(NCDF_INC) -I$(CMOR_INC) $<
-	$(F90) $(F90FLAGS) -c -I$(NCDF_INC) -I$(CMOR_INC) $<
+	@echo $(F90) $(F90FLAGS) -c -I$(NCDF_INC) $<
+	$(F90) $(F90FLAGS) -c -I$(NCDF_INC) $<
 	@echo "-----------------------------"
 
 %.o: %.F90
-	@echo $(F90) $(F90FLAGS) -c -I$(NCDF_INC) -I$(CMOR_INC) $<
-	$(F90) $(F90FLAGS) -c -I$(NCDF_INC) -I$(CMOR_INC) $<
+	@echo $(F90) $(F90FLAGS) -c -I$(NCDF_INC) $<
+	$(F90) $(F90FLAGS) -c -I$(NCDF_INC) $<
 	@echo "-----------------------------"
 
-$(PROG).o     : cosp_constants.o cosp_types.o cosp.o cosp_io.o
 cosp_io.o       : cosp_constants.o cosp_types.o cosp_modis_simulator.o
 cosp.o          : cosp_simulator.o cosp_types.o cosp_modis_simulator.o
 cosp_lidar.o    : cosp_constants.o cosp_types.o
@@ -114,7 +80,7 @@ clean_objs:
 	rm -f $(OBJS) *.mod *.o
 
 clean:
-	rm -f $(PROG) $(OBJS) *.mod *.o fort.*
+	rm -f $(OBJS) *.mod *.o fort.*
 
 scops.o : $(ISCCP_PATH)/scops.f
 	$(F90) $(F90FLAGS) -c -I$(ISCCP_PATH) $<
@@ -185,8 +151,8 @@ cosp_radar.o : $(LLNL_PATH)/cosp_radar.F90
 MISR_simulator.o : $(MISR_PATH)/MISR_simulator.f
 	$(F90) $(F90FLAGS) -c $<
 
-modis_simulator.o : $(MODIS_PATH)/modis_simulator.F90 
+modis_simulator.o : $(MODIS_PATH)/modis_simulator.F90
 	$(F90) $(F90FLAGS) -c $<
 
-cosp_rttov.o : cosp_rttov.F90 
+cosp_rttov.o : cosp_rttov.F90
 	$(F90) $(F90FLAGS) -c -I $(RTTOV_INC_PATH) -I $(RTTOV_MOD_PATH) $<
