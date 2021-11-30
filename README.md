@@ -4,8 +4,8 @@ COSP is the Cloud Feedback Model Intercomparison Project
 ([CFMIP](https://www.earthsystemcog.org/projects/cfmip/)) Observation Simulator
 Package.
 
-This is a fork of [CFMIP/COSPv1](https://github.com/CFMIP/COSPv1) with for use
-with the Automatic Lidar and Ceilometer Framework
+This is a fork of [CFMIP/COSPv1](https://github.com/CFMIP/COSPv1) for use with
+the Automatic Lidar and Ceilometer Framework
 ([ALCF](https://alcf-lidar.github.io)). It includes support for a surface
 lidar and additional lidar wavelengths: 532 nm, 910 nm and 1064 nm.
 
