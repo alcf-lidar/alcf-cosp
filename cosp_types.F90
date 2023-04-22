@@ -1092,8 +1092,8 @@ CONTAINS
 
     ! --- Initialize the distributional parameters for hydrometeors in radar simulator
 
-    write(*,*) 'RADAR_SIM microphysics scheme is set to: ', &
-            trim(RADAR_SIM_MICROPHYSICS_SCHEME_NAME)
+    !write(*,*) 'RADAR_SIM microphysics scheme is set to: ', &
+    !        trim(RADAR_SIM_MICROPHYSICS_SCHEME_NAME)
 
 
     if(y%Nhydro.ne.N_HYDRO) then
