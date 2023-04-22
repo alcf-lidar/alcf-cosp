@@ -23,6 +23,10 @@ See the original [README](README.txt) for more information.
 Release notes
 -------------
 
+### 1.1.0 (2023-04-22)
+
+- Radar scheme information is not printed to prevent output clutter.
+
 ### 1.0.0 (2021-11-30)
 
 - CMOR dependencies removed to simplify installation.
