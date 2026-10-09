@@ -20,6 +20,14 @@ Additional COSP configuration options:
 
 See the original [README](README.txt) for more information.
 
+License
+-------
+
+This code is available under the terms of the 2-clause BSD license (see
+`LICENSE.md` for more information), except for the code under `quickbeam`,
+which is available under the terms of the 3-clause BSD license (see
+`quickbeam/README`).
+
 Release notes
 -------------
 
